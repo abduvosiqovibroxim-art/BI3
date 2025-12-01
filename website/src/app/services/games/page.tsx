@@ -365,6 +365,16 @@ const caseRewards = [
   { type: "skin", id: "lava", rarity: "legendary", label: "Molten Lava!" },
 ];
 
+// Ammo types
+const ammoTypes = [
+  { id: "standard", name: "Standard", damage: 10, price: 0 },
+  { id: "armor_piercing", name: "Armor Piercing", damage: 15, price: 300 },
+  { id: "explosive", name: "Explosive", damage: 20, price: 500 },
+  { id: "incendiary", name: "Incendiary", damage: 18, price: 450 },
+  { id: "emp", name: "EMP Round", damage: 12, price: 600 },
+  { id: "plasma", name: "Plasma Shot", damage: 25, price: 1000 },
+];
+
 // AI tank names
 const aiNames = ["Thunder", "Blaze", "Shadow", "Storm", "Viper", "Titan", "Ghost", "Fury", "Hawk"];
 const aiColors = ["#e53e3e", "#dd6b20", "#38a169", "#3182ce", "#805ad5", "#d53f8c", "#319795", "#718096", "#d69e2e"];
