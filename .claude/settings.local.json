@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(cat:*)",
+      "Bash(npm run dev:*)",
+      "Bash(node -e:*)",
+      "Bash(taskkill:*)",
+      "Bash(exit 0)",
+      "Bash(if exist \"D:\\Projects\\BI3\\website\\.next\" rmdir /s /q \"D:\\Projects\\BI3\\website\\.next\")",
+      "Bash(powershell:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(dir:*)",
+      "Bash(if exist \"D:\\BI3\\website\\.next\" rmdir /s /q \"D:\\BI3\\website\\.next\")",
+      "Bash(del \"D:\\BI3\\website\\src\\components\\CursorEffects.tsx\")",
+      "Bash(if exist \"D:\\BI3\\website\\.next\\dev\\lock\" del /F \"D:\\BI3\\website\\.next\\dev\\lock\")",
+      "WebSearch",
+      "Bash(rm:*)",
+      "Bash(if exist \"C:\\Users\\Asus\\OneDrive\\Desktop\\BI3\\website\\.next\\dev\\lock\" del /F \"C:\\Users\\Asus\\OneDrive\\Desktop\\BI3\\website\\.next\\dev\\lock\")",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "Bash(git init:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
