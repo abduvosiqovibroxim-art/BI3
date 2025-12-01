@@ -375,6 +375,16 @@ const ammoTypes = [
   { id: "plasma", name: "Plasma Shot", damage: 25, price: 1000 },
 ];
 
+// Power-up types
+const powerUpTypes = [
+  { id: "speed", name: "Speed Boost", icon: "⚡", effect: "+50% speed for 5s", price: 100 },
+  { id: "shield", name: "Shield", icon: "🛡️", effect: "Block next hit", price: 150 },
+  { id: "damage", name: "Double Damage", icon: "💥", effect: "2x damage for 5s", price: 200 },
+  { id: "repair", name: "Repair Kit", icon: "🔧", effect: "Restore 25 HP", price: 100 },
+  { id: "nitro", name: "Nitro", icon: "🔥", effect: "Burst of speed", price: 75 },
+  { id: "stealth", name: "Stealth", icon: "👻", effect: "Invisible for 3s", price: 250 },
+];
+
 // AI tank names
 const aiNames = ["Thunder", "Blaze", "Shadow", "Storm", "Viper", "Titan", "Ghost", "Fury", "Hawk"];
 const aiColors = ["#e53e3e", "#dd6b20", "#38a169", "#3182ce", "#805ad5", "#d53f8c", "#319795", "#718096", "#d69e2e"];
@@ -419,6 +429,7 @@ function GameMenuDemo() {
   const [gender, setGender] = useState<Gender>("male");
   const [coins, setCoins] = useState(1000);
   const [tankLevel, setTankLevel] = useState(1);
+  const [baseLevel, setBaseLevel] = useState(1);
   const [currentSkin, setCurrentSkin] = useState("default");
   const [currentAmmo, setCurrentAmmo] = useState("standard");
   const [ownedSkins, setOwnedSkins] = useState(["default"]);
@@ -466,6 +477,12 @@ function GameMenuDemo() {
 
   // Shop tab
   const [shopTab, setShopTab] = useState<"skins" | "ammo">("skins");
+
+  // Power-ups system
+  const [storedPowerUps, setStoredPowerUps] = useState<Record<string, number>>({});
+  const [powerUpCooldown, setPowerUpCooldown] = useState(0);
+  const [shieldActive, setShieldActive] = useState(0);
+  const [nitroActive, setNitroActive] = useState(0);
 
   // Tank component upgrades (engine, cannon, armor, tracks)
   const [tankComponentLevels, setTankComponentLevels] = useState<Record<string, number>>({
@@ -860,6 +877,18 @@ function GameMenuDemo() {
     if (coins >= ammo.price && !ownedAmmo.includes(ammo.id)) {
       setCoins(prev => prev - ammo.price);
       setOwnedAmmo(prev => [...prev, ammo.id]);
+    }
+  };
+
+  // Use power-up
+  const usePowerUp = (powerUpId: string) => {
+    const count = storedPowerUps[powerUpId] || 0;
+    if (count > 0 && powerUpCooldown <= 0) {
+      setStoredPowerUps(prev => ({
+        ...prev,
+        [powerUpId]: prev[powerUpId] - 1
+      }));
+      setPowerUpCooldown(5);
     }
   };
 

@@ -144,8 +144,8 @@ function WebsiteBuilderDemo() {
                   }`}
                   style={{
                     background: `linear-gradient(135deg, ${primaryColor}15, ${primaryColor}05)`,
-                    ringColor: primaryColor
-                  }}
+                    '--tw-ring-color': primaryColor
+                  } as React.CSSProperties}
                   onClick={() => setSelectedElement(selectedElement === "hero" ? null : "hero")}
                 >
                   <h2 className="text-lg font-bold text-gray-800 mb-1">Welcome to BI3</h2>
