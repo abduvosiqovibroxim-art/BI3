@@ -13,36 +13,38 @@ export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [trails, setTrails] = useState<Array<{ id: number; x: number; y: number; timestamp: number }>>([]);
   const [sparks, setSparks] = useState<Spark[]>([]);
-  const lastTrailTime = useRef(0);
-  const rafId = useRef<number>(0);
-  const pendingPosition = useRef({ x: 0, y: 0 });
+  const animationRef = useRef<number>(0);
+  const targetPosition = useRef({ x: 0, y: 0 });
+  const currentPosition = useRef({ x: 0, y: 0 });
+
+  // Smooth lerp animation loop
+  useEffect(() => {
+    const smoothness = 0.035; // Ultra smooth cursor
+
+    const animate = () => {
+      // Lerp current position towards target
+      currentPosition.current.x += (targetPosition.current.x - currentPosition.current.x) * smoothness;
+      currentPosition.current.y += (targetPosition.current.y - currentPosition.current.y) * smoothness;
+
+      setPosition({ x: currentPosition.current.x, y: currentPosition.current.y });
+
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    pendingPosition.current = { x: e.clientX, y: e.clientY };
-
-    // Use requestAnimationFrame for smooth updates
-    if (!rafId.current) {
-      rafId.current = requestAnimationFrame(() => {
-        setPosition(pendingPosition.current);
-        setIsVisible(true);
-
-        // Throttle trail creation to every 50ms
-        const now = Date.now();
-        if (now - lastTrailTime.current > 50) {
-          lastTrailTime.current = now;
-          const newTrail = {
-            id: now + Math.random(),
-            x: pendingPosition.current.x,
-            y: pendingPosition.current.y,
-            timestamp: now,
-          };
-          setTrails((prev) => [...prev.slice(-8), newTrail]);
-        }
-        rafId.current = 0;
-      });
-    }
+    targetPosition.current = { x: e.clientX, y: e.clientY };
+    setIsVisible(true);
   }, []);
 
   const handleMouseEnter = useCallback(() => {
@@ -51,7 +53,6 @@ export default function CustomCursor() {
 
   const handleMouseLeave = useCallback(() => {
     setIsVisible(false);
-    setTrails([]);
   }, []);
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
@@ -78,20 +79,6 @@ export default function CustomCursor() {
     setIsClicking(false);
   }, []);
 
-  useEffect(() => {
-    // Remove trails older than 500ms
-    const trailCleanup = setInterval(() => {
-      const now = Date.now();
-      setTrails((prev) => prev.filter((trail) => now - trail.timestamp < 500));
-    }, 100);
-
-    return () => {
-      clearInterval(trailCleanup);
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     const handleHoverStart = (e: MouseEvent) => {
@@ -138,29 +125,6 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Trail particles */}
-      {trails.map((trail, index) => (
-        <div
-          key={trail.id}
-          className="cursor-trail"
-          style={{
-            left: trail.x,
-            top: trail.y,
-            opacity: (index + 1) / trails.length * 0.7,
-            transform: `translate(-50%, -50%) scale(${0.3 + (index / trails.length) * 0.7})`,
-            background: index % 3 === 0
-              ? "var(--neon-blue)"
-              : index % 3 === 1
-              ? "var(--neon-pink)"
-              : "var(--neon-purple)",
-            boxShadow: index % 3 === 0
-              ? "0 0 8px var(--neon-blue), 0 0 15px var(--neon-blue)"
-              : index % 3 === 1
-              ? "0 0 8px var(--neon-pink), 0 0 15px var(--neon-pink)"
-              : "0 0 8px var(--neon-purple), 0 0 15px var(--neon-purple)",
-          }}
-        />
-      ))}
 
       {/* Click sparks */}
       {sparks.map((spark, index) => {

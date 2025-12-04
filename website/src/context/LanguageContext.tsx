@@ -154,6 +154,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.readyToStart": "Ready to Start Your Project?",
     "services.ctaDesc": "Let's discuss your ideas and create something amazing together.",
     "services.getInTouch": "Get in Touch",
+    "services.playNow": "Play Now",
+    "services.bi3Games": "BI3 Games",
+    "services.bi3GamesTagline": "Play our games in browser",
+    "services.bi3GamesDesc": "Explore our collection of browser games. Play instantly without downloads - action, racing, puzzles and more!",
+    "services.bi3GamesFeature1": "Instant browser gameplay",
+    "services.bi3GamesFeature2": "Multiplayer support",
+    "services.bi3GamesFeature3": "Free to play",
+    "services.bi3GamesFeature4": "Regular updates & new games",
 
     // Works Page
     "works.terminalPath": "~/portfolio/works",
@@ -664,6 +672,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.readyToStart": "Готовы начать проект?",
     "services.ctaDesc": "Давайте обсудим ваши идеи и создадим что-то потрясающее вместе.",
     "services.getInTouch": "Связаться",
+    "services.playNow": "Играть",
+    "services.bi3Games": "BI3 Игры",
+    "services.bi3GamesTagline": "Играйте в наши игры в браузере",
+    "services.bi3GamesDesc": "Откройте нашу коллекцию браузерных игр. Играйте мгновенно без скачивания - экшен, гонки, головоломки и многое другое!",
+    "services.bi3GamesFeature1": "Мгновенный геймплей в браузере",
+    "services.bi3GamesFeature2": "Поддержка мультиплеера",
+    "services.bi3GamesFeature3": "Бесплатно",
+    "services.bi3GamesFeature4": "Регулярные обновления и новые игры",
 
     // Works Page
     "works.terminalPath": "~/портфолио/работы",
@@ -1174,6 +1190,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.readyToStart": "Loyihangizni boshlashga tayyormisiz?",
     "services.ctaDesc": "G'oyalaringizni muhokama qilaylik va birga ajoyib narsa yarataylik.",
     "services.getInTouch": "Bog'lanish",
+    "services.playNow": "O'ynash",
+    "services.bi3Games": "BI3 O'yinlar",
+    "services.bi3GamesTagline": "O'yinlarimizni brauzerda o'ynang",
+    "services.bi3GamesDesc": "Brauzer o'yinlari kolleksiyamizni kashf qiling. Yuklamasdan o'ynang - jangovar, poyga, boshqotirmalar va boshqalar!",
+    "services.bi3GamesFeature1": "Brauzerda tezkor o'yin",
+    "services.bi3GamesFeature2": "Ko'p o'yinchi rejimi",
+    "services.bi3GamesFeature3": "Bepul o'ynash",
+    "services.bi3GamesFeature4": "Doimiy yangilanishlar va yangi o'yinlar",
 
     // Works Page
     "works.terminalPath": "~/portfolio/ishlar",

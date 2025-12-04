@@ -23,7 +23,21 @@
       "Bash(git commit:*)",
       "Bash(git config:*)",
       "Bash(git push:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git rm:*)",
+      "Bash(if exist \".git\" rmdir /s /q \".git\")",
+      "Bash(git branch:*)",
+      "Bash(cmdkey /delete:git:https://github.com)",
+      "Bash(gh --version:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npm run build:*)",
+      "Bash(nslookup:*)",
+      "Bash(node scripts/optimize-images.mjs:*)",
+      "Bash(ren:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(curl:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

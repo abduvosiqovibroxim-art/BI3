@@ -9,7 +9,7 @@ const teamMemberKeys = [
   {
     nameKey: "team.member1.name",
     roleKey: "team.member1.role",
-    image: "/ibrohim-a.jpg",
+    image: "/optimized/ibrohim-a.webp",
     bioKey: "team.member1.bio",
     skillKeys: ["team.skill.leadership", "team.skill.strategy", "team.skill.business"],
     github: "https://github.com",
@@ -18,7 +18,7 @@ const teamMemberKeys = [
   {
     nameKey: "team.member2.name",
     roleKey: "team.member2.role",
-    image: "/ibrohim-r.jpg",
+    image: "/optimized/ibrohim-r.webp",
     bioKey: "team.member2.bio",
     skillKeys: ["team.skill.agile", "team.skill.scrum", "team.skill.management", "team.skill.planning"],
     github: "https://github.com",
@@ -27,7 +27,7 @@ const teamMemberKeys = [
   {
     nameKey: "team.member3.name",
     roleKey: "team.member3.role",
-    image: "/ibrohim-u.jpg",
+    image: "/optimized/ibrohim-u.webp",
     bioKey: "team.member3.bio",
     skillKeys: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
     github: "https://github.com",
@@ -36,7 +36,7 @@ const teamMemberKeys = [
   {
     nameKey: "team.member4.name",
     roleKey: "team.member4.role",
-    image: "/begzod.jpg",
+    image: "/optimized/begzod.webp",
     bioKey: "team.member4.bio",
     skillKeys: ["Node.js", "Python", "PostgreSQL", "REST APIs"],
     github: "https://github.com",
@@ -45,7 +45,7 @@ const teamMemberKeys = [
   {
     nameKey: "team.member5.name",
     roleKey: "team.member5.role",
-    image: "/Ibrohim-i.jpg",
+    image: "/optimized/ibrohim-i.webp",
     bioKey: "team.member5.bio",
     skillKeys: ["Solidity", "Web3.js", "Ethereum", "team.skill.smartContracts"],
     github: "https://github.com",
@@ -385,7 +385,7 @@ export default function AboutPage() {
 
               <div className="relative z-10">
                 <div className="w-20 h-20 rounded-lg bg-[var(--neon-blue)]/10 border border-[var(--neon-blue)]/30 flex items-center justify-center mx-auto mb-4 group-hover:shadow-[0_0_20px_var(--neon-blue)] transition-shadow duration-300 overflow-hidden p-2">
-                  <Image src="/natex.png" alt="Natex Labs" width={64} height={64} className="object-contain" />
+                  <Image src="/optimized/natex.webp" alt="Natex Labs" width={64} height={64} className="object-contain" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-center text-[var(--neon-blue)] drop-shadow-[0_0_10px_var(--neon-blue)]">Natex Labs</h3>
                 <p className="text-[var(--foreground)]/70 text-center">
@@ -406,7 +406,7 @@ export default function AboutPage() {
 
               <div className="relative z-10">
                 <div className="w-20 h-20 rounded-lg bg-[var(--neon-pink)]/10 border border-[var(--neon-pink)]/30 flex items-center justify-center mx-auto mb-4 group-hover:shadow-[0_0_20px_var(--neon-pink)] transition-shadow duration-300 overflow-hidden p-2">
-                  <Image src="/FIT.png" alt="FirstIt" width={64} height={64} className="object-contain" />
+                  <Image src="/optimized/FIT.webp" alt="FirstIt" width={64} height={64} className="object-contain" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-center text-[var(--neon-pink)] drop-shadow-[0_0_10px_var(--neon-pink)]">FirstIt</h3>
                 <p className="text-[var(--foreground)]/70 text-center">

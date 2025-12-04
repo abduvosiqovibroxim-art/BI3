@@ -2487,7 +2487,7 @@ export default function GamesServicePage() {
 
             {/* Play Game Button */}
             <div className="relative">
-              <Link href="/services/games/play" className="block group">
+              <Link href="/services/games/tank-battle" className="block group">
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1628] via-[#0d1f3c] to-[#071018] border border-[var(--neon-green)]/30 hover:border-[var(--neon-green)] transition-all duration-300 hover:shadow-[0_0_40px_var(--neon-green)/30]">
                   {/* Animated background */}
                   <div className="absolute inset-0 overflow-hidden">
@@ -2507,9 +2507,9 @@ export default function GamesServicePage() {
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--neon-green)] via-emerald-400 to-teal-400">
                         BI3
                       </span>
-                      <span className="text-white ml-2">TANKS</span>
+                      <span className="text-white ml-2">ИГРЫ</span>
                     </h3>
-                    <p className="text-[10px] font-mono text-[var(--neon-green)]/60 mt-1">3D TANK RACING</p>
+                    <p className="text-[10px] font-mono text-[var(--neon-green)]/60 mt-1">BROWSER GAMES</p>
                   </div>
 
                   {/* Play button in center */}

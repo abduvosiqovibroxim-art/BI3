@@ -105,23 +105,36 @@ const levelNameSuffixes = ["Ground", "Storm", "Warfare", "Base", "Path", "Ops", 
 // Generate level data dynamically
 const generateLevel = (id: number) => {
   const difficulty = id <= 2 ? "Easy" : id <= 5 ? "Medium" : id <= 10 ? "Hard" : id <= 20 ? "Expert" : "Legendary";
-  // AI gets progressively faster but caps at reasonable level
-  const aiSpeedMod = Math.min(0.7 + (id - 1) * 0.03, 1.3);
+
+  // AI gets progressively faster and smarter with each level
+  // Level 1: 0.6, Level 5: 0.84, Level 10: 1.14, Level 20: 1.74, capped at 2.0
+  const aiSpeedMod = Math.min(0.6 + (id - 1) * 0.06, 2.0);
+
+  // AI shoots more frequently at higher levels (lower = more frequent)
+  const aiShootCooldown = Math.max(150 - (id - 1) * 5, 50);
+
+  // AI accuracy increases (chance to hit player's lane)
+  const aiAccuracy = Math.min(0.1 + (id - 1) * 0.03, 0.6);
+
+  // Number of aggressive AI tanks increases
+  const aggressiveAiCount = Math.min(Math.floor(id / 3), 5);
+
   // Rewards scale with level
-  const rewardMod = 1.0 + (id - 1) * 0.15;
+  const rewardMod = 1.0 + (id - 1) * 0.2;
+
   // Generate name from parts based on level id
   const prefixIndex = (id - 1) % levelNamePrefixes.length;
   const suffixIndex = Math.floor((id - 1) / levelNamePrefixes.length) % levelNameSuffixes.length;
   const name = `${levelNamePrefixes[prefixIndex]} ${levelNameSuffixes[suffixIndex]}`;
 
-  return { id, name, difficulty, aiSpeedMod, rewardMod };
+  return { id, name, difficulty, aiSpeedMod, aiShootCooldown, aiAccuracy, aggressiveAiCount, rewardMod };
 };
 
 // Calculate stars based on finish position
 const getStarsFromPosition = (position: number): number => {
-  if (position <= 2) return 3; // Top 1-2 = 3 stars
-  if (position <= 5) return 2; // Top 3-5 = 2 stars
-  return 1; // Top 6-10 = 1 star
+  if (position === 1) return 3; // 1st place = 3 stars
+  if (position <= 5) return 2; // 2-5 place = 2 stars
+  return 1; // 6-10 place = 1 star
 };
 
 interface GameSaveData {
@@ -143,6 +156,7 @@ interface GameSaveData {
   vsync: boolean;
   tankComponentLevels: Record<string, number>;
   levelStars: Record<number, number>; // levelId -> stars (1-3)
+  isLoggedIn: boolean; // Auto-login flag
 }
 
 const SAVE_KEY = "bi3_tanks_save";
@@ -159,6 +173,17 @@ export default function TankGamePage() {
   // Auth states
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+
+  // Password validation - must have letters and numbers, min 6 chars
+  const validatePassword = (pwd: string): string | null => {
+    if (pwd.length < 6) return "Password must be at least 6 characters";
+    if (!/[a-zA-Z]/.test(pwd)) return "Password must contain letters";
+    if (!/[0-9]/.test(pwd)) return "Password must contain numbers";
+    if (/^[0-9]+$/.test(pwd)) return "Password cannot be only numbers";
+    return null;
+  };
 
   // Player states
   const [playerName, setPlayerName] = useState("");
@@ -268,7 +293,8 @@ export default function TankGamePage() {
           setVsync(data.vsync ?? true);
           if (data.tankComponentLevels) setTankComponentLevels(data.tankComponentLevels);
           if (data.levelStars) setLevelStars(data.levelStars);
-          if (data.playerName) setCurrentScreen("main");
+          // Auto-login if player was logged in before
+          if (data.isLoggedIn && data.playerName) setCurrentScreen("main");
         }
       } catch (e) {
         console.error("Failed to load save data:", e);
@@ -284,13 +310,14 @@ export default function TankGamePage() {
       playerName, gender, coins, tankLevel, currentSkin, currentAmmo,
       ownedSkins, ownedAmmo, matchesPlayed, availableCases, gameLang,
       graphicsQuality, shadows, particles, antiAliasing, vsync, tankComponentLevels, levelStars,
+      isLoggedIn: currentScreen !== "auth" && currentScreen !== "register" && currentScreen !== "character" && playerName !== "",
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
     } catch (e) {
       console.error("Failed to save game data:", e);
     }
-  }, [isLoaded, playerName, gender, coins, tankLevel, currentSkin, currentAmmo, ownedSkins, ownedAmmo, matchesPlayed, availableCases, gameLang, graphicsQuality, shadows, particles, antiAliasing, vsync, tankComponentLevels, levelStars]);
+  }, [isLoaded, playerName, gender, coins, tankLevel, currentSkin, currentAmmo, ownedSkins, ownedAmmo, matchesPlayed, availableCases, gameLang, graphicsQuality, shadows, particles, antiAliasing, vsync, tankComponentLevels, levelStars, currentScreen]);
 
   // Calculate tank stats
   const getTankStats = () => ({
@@ -326,17 +353,48 @@ export default function TankGamePage() {
 
   // Auth handlers
   const handleLogin = () => {
-    if (username.trim()) {
-      setPlayerName(username);
-      setCurrentScreen("character");
+    setAuthError("");
+
+    if (!username.trim()) {
+      setAuthError("Username is required");
+      return;
     }
+
+    const pwdError = validatePassword(password);
+    if (pwdError) {
+      setAuthError(pwdError);
+      return;
+    }
+
+    setPlayerName(username);
+    setCurrentScreen("character");
   };
 
   const handleRegister = () => {
-    if (username.trim() && password.trim()) {
-      setPlayerName(username);
-      setCurrentScreen("character");
+    setAuthError("");
+
+    if (!username.trim()) {
+      setAuthError("Username is required");
+      return;
     }
+    if (username.length < 3) {
+      setAuthError("Username must be at least 3 characters");
+      return;
+    }
+
+    const pwdError = validatePassword(password);
+    if (pwdError) {
+      setAuthError(pwdError);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setAuthError("Passwords do not match");
+      return;
+    }
+
+    setPlayerName(username);
+    setCurrentScreen("character");
   };
 
   // Start race
@@ -421,20 +479,41 @@ export default function TankGamePage() {
         return Math.min(newPos, FINISH_LINE);
       });
 
-      // Update AI
-      setAiTanks(prev => prev.map(ai => {
+      // Update AI with level-based difficulty
+      const { aiShootCooldown, aiAccuracy, aggressiveAiCount } = currentLevelData;
+      setAiTanks(prev => prev.map((ai, index) => {
         if (ai.stunned > 0) return { ...ai, stunned: ai.stunned - 1, speed: 0 };
-        const targetSpeed = AI_BASE_SPEED + Math.random() * 0.5;
-        const newSpeed = ai.speed + (targetSpeed - ai.speed) * 0.04;
-        const newPosition = Math.min(ai.position + newSpeed, FINISH_LINE);
-        let newLane = ai.lane;
-        if (Math.random() < 0.008) newLane = Math.floor(Math.random() * 3);
 
+        // Aggressive AIs are faster and more unpredictable
+        const isAggressive = index < aggressiveAiCount;
+        const speedBonus = isAggressive ? 0.3 : 0;
+        const targetSpeed = AI_BASE_SPEED + speedBonus + Math.random() * 0.5;
+        const newSpeed = ai.speed + (targetSpeed - ai.speed) * (isAggressive ? 0.06 : 0.04);
+        const newPosition = Math.min(ai.position + newSpeed, FINISH_LINE);
+
+        // Lane changing - aggressive AIs change lanes more to block player
+        let newLane = ai.lane;
+        const laneChangeChance = isAggressive ? 0.02 : 0.008;
+        if (Math.random() < laneChangeChance) {
+          if (isAggressive && Math.random() < 0.5) {
+            // Aggressive AI tries to match player lane
+            newLane = playerLane;
+          } else {
+            newLane = Math.floor(Math.random() * 3);
+          }
+        }
+
+        // Shooting - uses level-based cooldown and accuracy
         let newLastShot = ai.lastShot;
         const distToPlayer = ai.position - playerPosition;
-        if (distToPlayer > 5 && distToPlayer < 60 && now - ai.lastShot > 2500 + Math.random() * 3000) {
-          if (Math.abs(ai.lane - playerLane) <= 1 && Math.random() < 0.25) {
-            setEnemyBullets(bullets => [...bullets, { x: ai.position - 3, y: 0, lane: ai.lane, fromAi: ai.name }]);
+        const shootCooldown = isAggressive ? aiShootCooldown * 0.7 : aiShootCooldown;
+        const shootChance = isAggressive ? aiAccuracy * 1.5 : aiAccuracy;
+
+        if (distToPlayer > 5 && distToPlayer < 80 && now - ai.lastShot > shootCooldown * 10) {
+          if (Math.abs(ai.lane - playerLane) <= 1 && Math.random() < shootChance) {
+            // Shoot at player's lane for better accuracy at higher levels
+            const targetLane = Math.random() < aiAccuracy ? playerLane : ai.lane;
+            setEnemyBullets(bullets => [...bullets, { x: ai.position - 3, y: 0, lane: targetLane, fromAi: ai.name }]);
             newLastShot = now;
           }
         }
@@ -481,7 +560,7 @@ export default function TankGamePage() {
       });
     }, 50);
     return () => clearInterval(gameLoop);
-  }, [currentScreen, raceFinished, isAccelerating, playerSpeed, playerStunned, playerLane, playerPosition, finishOrder, MAX_SPEED, AI_BASE_SPEED, PLAYER_ARMOR, aiTanks]);
+  }, [currentScreen, raceFinished, isAccelerating, playerSpeed, playerStunned, playerLane, playerPosition, finishOrder, MAX_SPEED, AI_BASE_SPEED, PLAYER_ARMOR, aiTanks, currentLevelData]);
 
   // Check race end
   useEffect(() => {
@@ -621,6 +700,7 @@ export default function TankGamePage() {
       <div className="text-center mb-4">
         <div className="text-2xl font-bold text-[var(--neon-green)]">{gt("welcome")}</div>
       </div>
+      {authError && <div className="text-red-500 text-sm text-center bg-red-500/10 border border-red-500/30 rounded-lg py-2 px-3">{authError}</div>}
       <div className="space-y-3">
         <input type="text" placeholder={gt("username")} value={username} onChange={(e) => setUsername(e.target.value)}
           className="w-full px-4 py-3 bg-black/50 border border-[var(--neon-green)]/30 rounded-lg text-white text-sm font-mono focus:border-[var(--neon-green)] focus:outline-none" />
@@ -629,7 +709,7 @@ export default function TankGamePage() {
       </div>
       <div className="flex gap-2">
         <button onClick={handleLogin} className="flex-1 py-3 bg-gradient-to-r from-[var(--neon-green)] to-emerald-600 text-black font-bold rounded-lg hover:opacity-90 transition-all text-sm">{gt("login")}</button>
-        <button onClick={() => setCurrentScreen("register")} className="flex-1 py-3 border border-[var(--neon-green)]/50 text-[var(--neon-green)] font-bold rounded-lg hover:bg-[var(--neon-green)]/10 transition-all text-sm">{gt("register")}</button>
+        <button onClick={() => { setCurrentScreen("register"); setAuthError(""); }} className="flex-1 py-3 border border-[var(--neon-green)]/50 text-[var(--neon-green)] font-bold rounded-lg hover:bg-[var(--neon-green)]/10 transition-all text-sm">{gt("register")}</button>
       </div>
       <Link href="/services/games" className="block w-full py-2 text-[var(--muted)] text-xs hover:text-white transition-colors text-center">{gt("quit")}</Link>
     </div>
@@ -639,13 +719,15 @@ export default function TankGamePage() {
   const renderRegister = () => (
     <div className="space-y-4 px-2 max-w-md mx-auto">
       <div className="text-center mb-4"><div className="text-2xl font-bold text-[var(--neon-green)]">{gt("register")}</div></div>
+      {authError && <div className="text-red-500 text-sm text-center bg-red-500/10 border border-red-500/30 rounded-lg py-2 px-3">{authError}</div>}
       <div className="space-y-3">
         <input type="text" placeholder={gt("username")} value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-4 py-3 bg-black/50 border border-[var(--neon-green)]/30 rounded-lg text-white text-sm font-mono focus:border-[var(--neon-green)] focus:outline-none" />
         <input type="password" placeholder={gt("password")} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 bg-black/50 border border-[var(--neon-green)]/30 rounded-lg text-white text-sm font-mono focus:border-[var(--neon-green)] focus:outline-none" />
-        <input type="password" placeholder={gt("confirmPassword")} className="w-full px-4 py-3 bg-black/50 border border-[var(--neon-green)]/30 rounded-lg text-white text-sm font-mono focus:border-[var(--neon-green)] focus:outline-none" />
+        <input type="password" placeholder={gt("confirmPassword")} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-black/50 border border-[var(--neon-green)]/30 rounded-lg text-white text-sm font-mono focus:border-[var(--neon-green)] focus:outline-none" />
+        <p className="text-xs text-[var(--muted)]">Password must have letters + numbers, min 6 chars</p>
       </div>
       <button onClick={handleRegister} className="w-full py-3 bg-gradient-to-r from-[var(--neon-green)] to-emerald-600 text-black font-bold rounded-lg hover:opacity-90 transition-all text-sm">{gt("createAccount")}</button>
-      <button onClick={() => setCurrentScreen("auth")} className="w-full py-2 text-[var(--muted)] text-xs hover:text-white transition-colors">{gt("backToLogin")}</button>
+      <button onClick={() => { setCurrentScreen("auth"); setAuthError(""); }} className="w-full py-2 text-[var(--muted)] text-xs hover:text-white transition-colors">{gt("backToLogin")}</button>
     </div>
   );
 
@@ -893,15 +975,34 @@ export default function TankGamePage() {
           {/* Race view */}
           <div className="flex-1 relative rounded-lg overflow-hidden border border-gray-700" style={{ background: "linear-gradient(180deg, #1a1a2e 0%, #16213e 30%, #1a1a2e 100%)" }}>
             <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-indigo-900/50 to-transparent" />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, transparent 0%, transparent 20%, #2d2d2d 20%, #2d2d2d 100%)`, clipPath: "polygon(35% 25%, 65% 25%, 100% 100%, 0% 100%)" }}>
-              {[48, 38, 58].map((pos, idx) => (
-                <div key={idx} className="absolute inset-0" style={{
-                  background: `repeating-linear-gradient(180deg, transparent 0px, transparent 20px, #ffd700 20px, #ffd700 40px)`,
-                  clipPath: idx === 0 ? "polygon(48% 25%, 52% 25%, 52% 100%, 48% 100%)" : idx === 1 ? "polygon(38% 25%, 42% 25%, 35% 100%, 25% 100%)" : "polygon(58% 25%, 62% 25%, 75% 100%, 65% 100%)",
-                  animation: `roadMove ${Math.max(0.3, 1 - playerSpeed / 5)}s linear infinite`
-                }} />
-              ))}
-            </div>
+            {/* Road surface */}
+            <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, transparent 0%, transparent 20%, #3a3a3a 20%, #3a3a3a 100%)`, clipPath: "polygon(35% 25%, 65% 25%, 100% 100%, 0% 100%)" }} />
+
+            {/* Left white edge line */}
+            <div className="absolute inset-0" style={{
+              background: "#ffffff",
+              clipPath: "polygon(35% 25%, 36% 25%, 1% 100%, 0% 100%)",
+            }} />
+
+            {/* Right white edge line */}
+            <div className="absolute inset-0" style={{
+              background: "#ffffff",
+              clipPath: "polygon(64% 25%, 65% 25%, 100% 100%, 99% 100%)",
+            }} />
+
+            {/* Left lane divider - dashed yellow line */}
+            <div className="absolute inset-0" style={{
+              background: `repeating-linear-gradient(180deg, #ffd700 0px, #ffd700 20px, transparent 20px, transparent 40px)`,
+              clipPath: "polygon(44% 25%, 45% 25%, 33% 100%, 32% 100%)",
+              animation: `roadMove ${Math.max(0.3, 1 - playerSpeed / 5)}s linear infinite`
+            }} />
+
+            {/* Right lane divider - dashed yellow line */}
+            <div className="absolute inset-0" style={{
+              background: `repeating-linear-gradient(180deg, #ffd700 0px, #ffd700 20px, transparent 20px, transparent 40px)`,
+              clipPath: "polygon(55% 25%, 56% 25%, 68% 100%, 67% 100%)",
+              animation: `roadMove ${Math.max(0.3, 1 - playerSpeed / 5)}s linear infinite`
+            }} />
 
             {/* AI Tanks */}
             {visibleTanks.map((ai) => {

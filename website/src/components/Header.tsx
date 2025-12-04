@@ -30,7 +30,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/logo.png"
+              src="/optimized/logo.webp"
               alt="BI3 Logo"
               width={100}
               height={33}
